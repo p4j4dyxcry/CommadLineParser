@@ -30,7 +30,7 @@ namespace CommandLine
 
             try
             {
-                var commands = ArgsToCommands(args);
+                var commands = ArgsToCommands(args).ToArray();
 
                 if (commands.Any(x => x.Command == Help || x.Command == "h"))
                 {
@@ -45,9 +45,9 @@ namespace CommandLine
                 }
 
                 var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                var cmdOptions = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdOption));
-                var cmdArgProps = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdArgOption));
-                var cmdFlagProps = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdFlagOption));
+                var cmdOptions = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdOption)).ToArray();
+                var cmdArgProps = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdArgOption)).ToArray();
+                var cmdFlagProps = properties.Where(x => x.GetCustomAttributes().Any(y => y is CmdFlagOption)).ToArray();
 
                 var reqDictionary = new Dictionary<string, bool>();
                 foreach (var op in cmdOptions)
@@ -181,17 +181,16 @@ namespace CommandLine
         /// <summary>
         /// ヘルプの表示
         /// </summary>
-        /// <param name="type"></param>
         /// <returns></returns>
         private void ShowVersion()
         {
-            FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-            Console.WriteLine("Version{0]", ver.ProductVersion);
+            var ver = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+            Console.WriteLine("Version{0}", ver.ProductVersion);
         }
 
         private void ShowHelp(Type type)
         {
-            Console.WriteLine($"{Assembly.GetExecutingAssembly().FullName}:");
+            Console.WriteLine($"{Assembly.GetEntryAssembly().FullName}:");
             Console.WriteLine($"");
             Console.WriteLine($"使用可能な引数");
             foreach (var info in TypeToCommandsInfo(type))
